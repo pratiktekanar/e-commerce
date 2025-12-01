@@ -30,6 +30,7 @@ public class UserDtls {
     private String password;
     private String profileImage;
     private String role;
+    private String resetToken;
     private Boolean isEnable;
     private Boolean accountNonLocked;
     private Integer failedAttempt;
