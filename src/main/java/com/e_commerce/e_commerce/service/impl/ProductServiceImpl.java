@@ -1,17 +1,15 @@
-package com.e_commerce.e_commerce.service.categoryServiceImpl;
+package com.e_commerce.e_commerce.service.impl;
 
 import com.e_commerce.e_commerce.model.Product;
 import com.e_commerce.e_commerce.repository.ProductRepository;
 import com.e_commerce.e_commerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

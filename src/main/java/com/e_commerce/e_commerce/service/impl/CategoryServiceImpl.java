@@ -1,4 +1,4 @@
-package com.e_commerce.e_commerce.service.categoryServiceImpl;
+package com.e_commerce.e_commerce.service.impl;
 
 import com.e_commerce.e_commerce.model.Category;
 import com.e_commerce.e_commerce.repository.CategoryRepository;

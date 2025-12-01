@@ -1,11 +1,10 @@
-package com.e_commerce.e_commerce.service.categoryServiceImpl;
+package com.e_commerce.e_commerce.service.impl;
 
 import com.e_commerce.e_commerce.model.UserDtls;
 import com.e_commerce.e_commerce.repository.UserRepository;
 import com.e_commerce.e_commerce.service.UserService;
 import com.e_commerce.e_commerce.util.AppConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
