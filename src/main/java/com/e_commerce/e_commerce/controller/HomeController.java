@@ -3,6 +3,7 @@ package com.e_commerce.e_commerce.controller;
 import com.e_commerce.e_commerce.model.Category;
 import com.e_commerce.e_commerce.model.Product;
 import com.e_commerce.e_commerce.model.UserDtls;
+import com.e_commerce.e_commerce.service.CartService;
 import com.e_commerce.e_commerce.service.CategoryService;
 import com.e_commerce.e_commerce.service.ProductService;
 import com.e_commerce.e_commerce.service.UserService;
@@ -50,12 +51,17 @@ public class HomeController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CartService cartService;
+
     @ModelAttribute
     public void getUserDetails(Principal p, Model m){
         if(p != null){
             String email = p.getName();
             UserDtls userDtls = userService.getUserByEmail(email);
             m.addAttribute("user",userDtls);
+            Integer countCart = cartService.getCountCard(userDtls.getId());
+            m.addAttribute("countCart" , countCart);
         }
 
         List<Category> allActiveCategory = categoryService.getAllActiveCategory();
