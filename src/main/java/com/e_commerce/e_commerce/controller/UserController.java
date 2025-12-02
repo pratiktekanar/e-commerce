@@ -81,6 +81,12 @@ public class UserController {
         return "redirect:/user/cart";
     }
 
+    @GetMapping("/orders")
+    public String orderPage()
+    {
+        return "/user/order";
+    }
+
     private UserDtls getLoggedInDetails(Principal p)
     {
         String email = p.getName();
