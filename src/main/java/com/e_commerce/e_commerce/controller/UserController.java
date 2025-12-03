@@ -84,8 +84,15 @@ public class UserController {
     }
 
     @GetMapping("/orders")
-    public String orderPage()
+    public String orderPage(Principal p,Model m)
     {
+        String email = p.getName();
+        UserDtls user = getLoggedInDetails(p);
+        List<Cart> carts = cartService.getCartsByUser(user.getId());
+        m.addAttribute("carts",carts);
+        if(carts.size()>0){
+            m.addAttribute("orderPrice",carts.get(carts.size()-1).getTotalOrderPrice());
+            m.addAttribute("totalOrderPrice",carts.get(carts.size()-1).getTotalOrderPrice()+250+100);}
         return "/user/order";
     }
 
@@ -94,6 +101,12 @@ public class UserController {
     {
         UserDtls user = getLoggedInDetails(p);
         orderService.saveOrder(user.getId(), request);
+        return "redirect:/user/success";
+    }
+
+    @GetMapping("/success")
+    public String loadSuccess()
+    {
         return "/user/success";
     }
 
