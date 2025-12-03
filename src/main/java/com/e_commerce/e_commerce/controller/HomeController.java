@@ -1,24 +1,5 @@
-package com.e_commerce.e_commerce.controller;
 
-import com.e_commerce.e_commerce.model.Category;
-import com.e_commerce.e_commerce.model.Product;
-import com.e_commerce.e_commerce.model.UserDtls;
-import com.e_commerce.e_commerce.service.CartService;
-import com.e_commerce.e_commerce.service.CategoryService;
-import com.e_commerce.e_commerce.service.ProductService;
-import com.e_commerce.e_commerce.service.UserService;
-import com.e_commerce.e_commerce.util.CommonUtil;
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+package com.e_commerce.e_commerce.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +10,36 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.e_commerce.e_commerce.model.Category;
+import com.e_commerce.e_commerce.model.Product;
+import com.e_commerce.e_commerce.model.UserDtls;
+import com.e_commerce.e_commerce.service.CartService;
+import com.e_commerce.e_commerce.service.CategoryService;
+import com.e_commerce.e_commerce.service.ProductService;
+import com.e_commerce.e_commerce.service.UserService;
+import com.e_commerce.e_commerce.util.CommonUtil;
+
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
-
 public class HomeController {
 
     @Autowired
@@ -55,145 +61,146 @@ public class HomeController {
     private CartService cartService;
 
     @ModelAttribute
-    public void getUserDetails(Principal p, Model m){
-        if(p != null){
+    public void getUserDetails(Principal p, Model m) {
+        if (p != null) {
             String email = p.getName();
             UserDtls userDtls = userService.getUserByEmail(email);
-            m.addAttribute("user",userDtls);
+            m.addAttribute("user", userDtls);
             Integer countCart = cartService.getCountCard(userDtls.getId());
-            m.addAttribute("countCart" , countCart);
+            m.addAttribute("countCart", countCart);
         }
 
         List<Category> allActiveCategory = categoryService.getAllActiveCategory();
-        m.addAttribute("categorys",allActiveCategory);
+        m.addAttribute("categorys", allActiveCategory);
     }
 
     @GetMapping("/")
-    public String index(){
+    public String index() {
         return "index";
     }
 
-    @GetMapping("/register")
-    public String register(){
-        return "register";
-    }
-
     @GetMapping("/signin")
-    public String login(){
+    public String login() {
         return "login";
     }
 
+    @GetMapping("/register")
+    public String register() {
+        return "register";
+    }
+
     @GetMapping("/products")
-    public String products(Model m , @RequestParam(value="category" , defaultValue = "") String category) {
+    public String products(Model m, @RequestParam(value = "category", defaultValue = "") String category) {
+        // System.out.println("category="+category);
         List<Category> categories = categoryService.getAllActiveCategory();
         List<Product> products = productService.getAllActivProducts(category);
-
-        m.addAttribute("categories",categories);
-        m.addAttribute("products",products);
-        m.addAttribute("paramValue",category);
-
+        m.addAttribute("categories", categories);
+        m.addAttribute("products", products);
+        m.addAttribute("paramValue", category);
         return "product";
     }
 
     @GetMapping("/product/{id}")
-    public String product(@PathVariable int id, Model m){
+    public String product(@PathVariable int id, Model m) {
         Product productById = productService.getProductById(id);
-        m.addAttribute("product",productById);
+        m.addAttribute("product", productById);
         return "view_product";
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute UserDtls user, @RequestParam("img") MultipartFile file, HttpSession session) throws IOException {
+    public String saveUser(@ModelAttribute UserDtls user, @RequestParam("img") MultipartFile file, HttpSession session)
+            throws IOException {
 
-        String imgName = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();
-        user.setProfileImage(imgName);
-        userService.saveUser(user);
-        if(!ObjectUtils.isEmpty(user)){
-            if(!file.isEmpty()){
+        String imageName = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();
+        user.setProfileImage(imageName);
+        UserDtls saveUser = userService.saveUser(user);
+
+        if (!ObjectUtils.isEmpty(saveUser)) {
+            if (!file.isEmpty()) {
                 File saveFile = new ClassPathResource("static/img").getFile();
 
-                // add profile_img subfolder
-                Path dirPath = Paths.get(saveFile.getAbsolutePath(), "profile_img");
+                Path path = Paths.get(saveFile.getAbsolutePath() + File.separator + "profile_img" + File.separator
+                        + file.getOriginalFilename());
 
-                // ✅ create folder if missing
-                if (!Files.exists(dirPath)) {
-                    Files.createDirectories(dirPath);
-                }
-
-                // final file path
-                Path path = dirPath.resolve(file.getOriginalFilename());
-                Files.copy(file.getInputStream(),path , StandardCopyOption.REPLACE_EXISTING);
+//				System.out.println(path);
+                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             }
-            session.setAttribute("SuccMsg","Saved successfully ");
-        }else{
-            session.setAttribute("errorMsg","Something wrong on server");
+            session.setAttribute("succMsg", "Register successfully");
+        } else {
+            session.setAttribute("errorMsg", "something wrong on server");
         }
+
         return "redirect:/register";
     }
 
-    // -----***Forget password logic***-----
+//	Forgot Password Code
 
     @GetMapping("/forgot-password")
-    public String showForgetPassword()
-    {
+    public String showForgotPassword() {
         return "forgot_password.html";
     }
 
     @PostMapping("/forgot-password")
-    public String processForgetPassword(@RequestParam String email, HttpSession session, HttpServletRequest request)
-            throws UnsupportedEncodingException, MessagingException
-    {
-       UserDtls userByEmail = userService.getUserByEmail(email);
-       if(ObjectUtils.isEmpty(userByEmail))
-       {
-           session.setAttribute("errorMsg","invalid email");
-       }else{
-           String resetToken = UUID.randomUUID().toString();
-           userService.updateUserResetToken(email , resetToken);
+    public String processForgotPassword(@RequestParam String email, HttpSession session, HttpServletRequest request)
+            throws UnsupportedEncodingException, MessagingException {
 
-           // Generate URL : http://localhost:8080/forgot-password?token=rgergegfdsvdgrtfvdfb
-           String url = CommonUtil.generateUrl(request)+"/reset-password?token="+resetToken;
+        UserDtls userByEmail = userService.getUserByEmail(email);
 
-           Boolean sendEmail = commonUtil.sendEmail(url,email);
-           if(sendEmail)
-           {
-               session.setAttribute("succMsg","Please check your email... Password reset link send");
-           }else{
-               session.setAttribute("errorMsg","Something wrong on server ! Email not send");
-           }
-       }
+        if (ObjectUtils.isEmpty(userByEmail)) {
+            session.setAttribute("errorMsg", "Invalid email");
+        } else {
+
+            String resetToken = UUID.randomUUID().toString();
+            userService.updateUserResetToken(email, resetToken);
+
+            // Generate URL :
+            // http://localhost:8080/reset-password?token=sfgdbgfswegfbdgfewgvsrg
+
+            String url = CommonUtil.generateUrl(request) + "/reset-password?token=" + resetToken;
+
+            Boolean sendMail = commonUtil.sendEmail(url, email);
+
+            if (sendMail) {
+                session.setAttribute("succMsg", "Please check your email..Password Reset link sent");
+            } else {
+                session.setAttribute("errorMsg", "Somethong wrong on server ! Email not send");
+            }
+        }
+
         return "redirect:/forgot-password";
     }
 
-
     @GetMapping("/reset-password")
-    public String showResetPassword(@RequestParam String token,HttpSession session,Model m)
-    {
+    public String showResetPassword(@RequestParam String token, HttpSession session, Model m) {
+
         UserDtls userByToken = userService.getUserByResetToken(token);
-        if(ObjectUtils.isEmpty(userByToken)){
-            m.addAttribute("msg","You link is invalid or expired");
+
+        if (userByToken == null) {
+            m.addAttribute("msg", "Your link is invalid or expired !!");
             return "message";
         }
-        m.addAttribute("token",token);
+        m.addAttribute("token", token);
         return "reset_password";
     }
 
     @PostMapping("/reset-password")
-    public String showResetPassword(@RequestParam String token,@RequestParam String password,Model m)
-    {
+    public String resetPassword(@RequestParam String token, @RequestParam String password, HttpSession session,
+                                Model m) {
+
         UserDtls userByToken = userService.getUserByResetToken(token);
-        if(ObjectUtils.isEmpty(userByToken)){
-            m.addAttribute("msg","You link is invalid or expired");
+        if (userByToken == null) {
+            m.addAttribute("errorMsg", "Your link is invalid or expired !!");
             return "message";
-        }else
-        {
+        } else {
             userByToken.setPassword(passwordEncoder.encode(password));
             userByToken.setResetToken(null);
             userService.updateUser(userByToken);
+            // session.setAttribute("succMsg", "Password change successfully");
+            m.addAttribute("msg", "Password change successfully");
 
-            m.addAttribute("msg","Password change successfully");
             return "message";
         }
 
     }
+
 }
