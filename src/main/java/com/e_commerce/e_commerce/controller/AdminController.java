@@ -2,6 +2,7 @@ package com.e_commerce.e_commerce.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +12,9 @@ import java.util.List;
 
 import com.e_commerce.e_commerce.model.ProductOrder;
 import com.e_commerce.e_commerce.service.*;
+import com.e_commerce.e_commerce.util.CommonUtil;
 import com.e_commerce.e_commerce.util.OrderStatus;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -49,6 +52,9 @@ public class AdminController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private CommonUtil commonUtil;
 
     @ModelAttribute
     public void getUserDetails(Principal p, Model m) {
@@ -268,7 +274,7 @@ public class AdminController {
     }
 
     @PostMapping("/update-order-status")
-    public String updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st, HttpSession session) {
+    public String updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st, HttpSession session) throws MessagingException, UnsupportedEncodingException {
 
         OrderStatus[] values = OrderStatus.values();
         String status = null;
@@ -279,9 +285,14 @@ public class AdminController {
             }
         }
 
-        Boolean updateOrder = orderService.orderUpdateStatus(id, status);
+        ProductOrder updateOrder = orderService.orderUpdateStatus(id, status);
+        try {
+            commonUtil.sendMailForProductOrder(updateOrder, status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        if (updateOrder) {
+        if (!ObjectUtils.isEmpty(updateOrder)) {
             session.setAttribute("succMsg", "Status Updated");
         } else {
             session.setAttribute("errorMsg", "status not updated");

@@ -1,8 +1,11 @@
 package com.e_commerce.e_commerce.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.List;
 
+import com.e_commerce.e_commerce.util.CommonUtil;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +42,9 @@ public class UserController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private CommonUtil commonUtil;
 
     @GetMapping("/")
     public String home() {
@@ -133,7 +139,7 @@ public class UserController {
     }
 
     @GetMapping("/update-status")
-    public String updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st, HttpSession session) {
+    public String updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st, HttpSession session) throws MessagingException, UnsupportedEncodingException {
 
         OrderStatus[] values = OrderStatus.values();
         String status = null;
@@ -144,9 +150,13 @@ public class UserController {
             }
         }
 
-        Boolean updateOrder = orderService.orderUpdateStatus(id, status);
-
-        if (updateOrder) {
+        ProductOrder updateOrder = orderService.orderUpdateStatus(id, status);
+        try {
+            commonUtil.sendMailForProductOrder(updateOrder, status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!ObjectUtils.isEmpty(updateOrder)) {
             session.setAttribute("succMsg", "Status Updated");
         } else {
             session.setAttribute("errorMsg", "status not updated");

@@ -12,7 +12,7 @@ public interface OrderService {
 
     public List<ProductOrder> getOrdersByUser(UserDtls user);
 
-    public Boolean orderUpdateStatus(Integer id,String status);
+    public ProductOrder orderUpdateStatus(Integer id,String status);
 
     public List<ProductOrder> getAllOrders();
 }

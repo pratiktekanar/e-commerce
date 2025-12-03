@@ -4,8 +4,10 @@ import com.e_commerce.e_commerce.model.*;
 import com.e_commerce.e_commerce.repository.CartRepository;
 import com.e_commerce.e_commerce.repository.ProductOrderRepository;
 import com.e_commerce.e_commerce.service.OrderService;
+import com.e_commerce.e_commerce.util.CommonUtil;
 import com.e_commerce.e_commerce.util.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,6 +23,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ProductOrderRepository productOrderRepository;
+
+    @Autowired
+    private CommonUtil commonUtil;
 
     @Override
     public void saveOrder(Integer userid, OrderRequest orderRequest)
@@ -51,9 +56,15 @@ public class OrderServiceImpl implements OrderService {
 
             order.setOrderAddress(address);
 
-            productOrderRepository.save(order);
+            ProductOrder saveOrder = productOrderRepository.save(order);
+            try {
+                commonUtil.sendMailForProductOrder(saveOrder,"success");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
+
     }
 
     @Override
@@ -63,17 +74,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Boolean orderUpdateStatus(Integer id,String status)
+    public ProductOrder orderUpdateStatus(Integer id,String status)
     {
         Optional<ProductOrder> order = productOrderRepository.findById(id);
         if (order.isPresent())
         {
             ProductOrder productOrder = order.get();
             productOrder.setStatus(status);
-            productOrderRepository.save(productOrder);
-            return true;
+            ProductOrder updateOrder = productOrderRepository.save(productOrder);
+            return updateOrder;
         }
-        return false;
+        return null;
     }
 
     @Override
