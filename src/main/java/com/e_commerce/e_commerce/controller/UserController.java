@@ -2,19 +2,18 @@ package com.e_commerce.e_commerce.controller;
 
 import com.e_commerce.e_commerce.model.Cart;
 import com.e_commerce.e_commerce.model.Category;
+import com.e_commerce.e_commerce.model.OrderRequest;
 import com.e_commerce.e_commerce.model.UserDtls;
 import com.e_commerce.e_commerce.service.CartService;
 import com.e_commerce.e_commerce.service.CategoryService;
+import com.e_commerce.e_commerce.service.OrderService;
 import com.e_commerce.e_commerce.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -31,6 +30,9 @@ public class UserController {
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/")
     public String home(){
@@ -85,6 +87,14 @@ public class UserController {
     public String orderPage()
     {
         return "/user/order";
+    }
+
+    @PostMapping("/save-order")
+    public String saveOrder(@ModelAttribute OrderRequest request,Principal p)
+    {
+        UserDtls user = getLoggedInDetails(p);
+        orderService.saveOrder(user.getId(), request);
+        return "/user/success";
     }
 
     private UserDtls getLoggedInDetails(Principal p)
