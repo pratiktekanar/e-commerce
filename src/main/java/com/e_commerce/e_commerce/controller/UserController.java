@@ -1,13 +1,11 @@
 package com.e_commerce.e_commerce.controller;
 
-import com.e_commerce.e_commerce.model.Cart;
-import com.e_commerce.e_commerce.model.Category;
-import com.e_commerce.e_commerce.model.OrderRequest;
-import com.e_commerce.e_commerce.model.UserDtls;
+import com.e_commerce.e_commerce.model.*;
 import com.e_commerce.e_commerce.service.CartService;
 import com.e_commerce.e_commerce.service.CategoryService;
 import com.e_commerce.e_commerce.service.OrderService;
 import com.e_commerce.e_commerce.service.UserService;
+import com.e_commerce.e_commerce.util.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -110,11 +108,42 @@ public class UserController {
         return "/user/success";
     }
 
+    @GetMapping("user-orders")
+    public String myOrders(Principal p,Model m)
+    {
+        UserDtls user=getLoggedInDetails(p);
+        List<ProductOrder> orders = orderService.getOrdersByUser(user);
+        m.addAttribute("orders",orders);
+        return "/user/my_orders";
+    }
+
     private UserDtls getLoggedInDetails(Principal p)
     {
         String email = p.getName();
         UserDtls userDtls = userService.getUserByEmail(email);
         return userDtls;
+    }
+
+    @GetMapping("/update-status")
+    public String updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st, HttpSession session) {
+
+        OrderStatus[] values = OrderStatus.values();
+        String status = null;
+
+        for (OrderStatus orderSt : values) {
+            if (orderSt.getId().equals(st)) {
+                status = orderSt.getName();
+            }
+        }
+
+        Boolean updateOrder = orderService.orderUpdateStatus(id, status);
+
+        if (updateOrder) {
+            session.setAttribute("succMsg", "Status Updated");
+        } else {
+            session.setAttribute("errorMsg", "status not updated");
+        }
+        return "redirect:/user/user-orders";
     }
 
 }

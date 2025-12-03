@@ -1,9 +1,6 @@
 package com.e_commerce.e_commerce.service.impl;
 
-import com.e_commerce.e_commerce.model.Cart;
-import com.e_commerce.e_commerce.model.OrderAddress;
-import com.e_commerce.e_commerce.model.OrderRequest;
-import com.e_commerce.e_commerce.model.ProductOrder;
+import com.e_commerce.e_commerce.model.*;
 import com.e_commerce.e_commerce.repository.CartRepository;
 import com.e_commerce.e_commerce.repository.ProductOrderRepository;
 import com.e_commerce.e_commerce.service.OrderService;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,5 +54,25 @@ public class OrderServiceImpl implements OrderService {
             productOrderRepository.save(order);
 
         }
+    }
+
+    @Override
+    public List<ProductOrder> getOrdersByUser(UserDtls user)
+    {
+        return  productOrderRepository.getOrdersByUser(user);
+    }
+
+    @Override
+    public Boolean orderUpdateStatus(Integer id,String status)
+    {
+        Optional<ProductOrder> order = productOrderRepository.findById(id);
+        if (order.isPresent())
+        {
+            ProductOrder productOrder = order.get();
+            productOrder.setStatus(status);
+            productOrderRepository.save(productOrder);
+            return true;
+        }
+        return false;
     }
 }
