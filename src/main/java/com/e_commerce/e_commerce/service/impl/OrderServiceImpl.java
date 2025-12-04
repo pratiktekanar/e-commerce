@@ -7,7 +7,9 @@ import com.e_commerce.e_commerce.service.OrderService;
 import com.e_commerce.e_commerce.util.CommonUtil;
 import com.e_commerce.e_commerce.util.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -91,5 +93,18 @@ public class OrderServiceImpl implements OrderService {
     public List<ProductOrder> getAllOrders()
     {
         return productOrderRepository.findAll();
+    }
+
+    @Override
+    public Page<ProductOrder> getAllOrdersPagination(Integer pageNo, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return productOrderRepository.findAll(pageable);
+
+    }
+
+
+    @Override
+    public ProductOrder getOrdersByOrderId(String orderId) {
+        return productOrderRepository.findByOrderId(orderId);
     }
 }

@@ -9,4 +9,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<Product> findByIsActiveTrue();
 
     public List<Product> findByCategory(String category);
+
+    List<Product> findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(String ch, String ch2);
+
 }
