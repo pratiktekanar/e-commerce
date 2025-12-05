@@ -31,9 +31,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link active"
-                                        aria-current="page" href="/"><i class="fa-solid fa-house"></i>
-                    Home</a></li>
+                <th:block th:if="${user==null}">
+                    <li class="nav-item"><a class="nav-link active"
+                                            aria-current="page" href="/"><i class="fa-solid fa-house"></i>
+                        Home</a></li>
+                </th:block>
+                <th:block th:unless="${user==null}">
+                    <li th:if="${user.role=='ROLE_USER'}" class="nav-item"><a class="nav-link active"
+                                            aria-current="page" href="/"><i class="fa-solid fa-house"></i>
+                        Home</a></li>
+
+                    <li th:if="${user.role=='ROLE_Admin'}" class="nav-item"><a class="nav-link active"
+                                            aria-current="page" href="/admin/"><i class="fa-solid fa-house"></i>
+                        Home</a></li>
+                </th:block>
+
                 <li class="nav-item"><a class="nav-link active"
                                         aria-current="page" href="/products">Product</a></li>
 
@@ -56,8 +68,6 @@
                     <li class="nav-item"><a class="nav-link active"
                                             aria-current="page" href="/register">REGISTER</a></li>
 
-                    <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="#">ADMIN</a></li>
                 </th:block>
 
                 <th:block th:if="${user!=null}">
@@ -66,20 +76,34 @@
                                                 aria-current="page" href="/user/cart"><i
                                 class="fa-solid fa-cart-shopping"></i> Cart [ [[${countCart}]]
                             ]</a></li>
-                    </th:block>
-                    <li class="nav-item dropdown"><a
-                            class="nav-link dropdown-toggle active" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false"> <i
-                            class="fa-solid fa-user"></i> [[${user.name}]]
-                    </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
-                            <li><a class="dropdown-item" href="/user/user-orders">My
-                                Orders</a></li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                        <li class="nav-item dropdown"><a
+                                class="nav-link dropdown-toggle active" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"> <i
+                                class="fa-solid fa-user"></i> [[${user.name}]]
+                        </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
+                                <li><a class="dropdown-item" href="/user/user-orders">My
+                                    Orders</a></li>
+                                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                <li><hr class="dropdown-divider"></li>
 
-                        </ul></li>
+                            </ul></li>
+                    </th:block>
+
+                    <th:block th:if="${user.role=='ROLE_Admin'}">
+                        <li class="nav-item dropdown"><a
+                                class="nav-link dropdown-toggle active" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"> <i
+                                class="fa-solid fa-user"></i> [[${user.name}]]
+                        </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
+                                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                <li><hr class="dropdown-divider"></li>
+
+                            </ul></li>
+                    </th:block>
 
                     <!-- <li class="nav-item"><a class="nav-link active"
                         aria-current="page" href="/logout"><i

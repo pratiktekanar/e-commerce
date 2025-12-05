@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDtls saveUser(UserDtls user){
-        user.setRole("ROLE_Admin");
+        user.setRole("ROLE_USER");
         user.setIsEnable(true);
         user.setAccountNonLocked(true);
         user.setFailedAttempt(0);
@@ -158,6 +158,19 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         return dbUser;
+    }
+
+    @Override
+    public UserDtls saveAdmin(UserDtls user){
+        user.setRole("ROLE_Admin");
+        user.setIsEnable(true);
+        user.setAccountNonLocked(true);
+        user.setFailedAttempt(0);
+        user.setLockTime(null);
+        String encodePassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodePassword);
+        UserDtls saveUser = userRepository.save(user);
+        return saveUser;
     }
 
 }
