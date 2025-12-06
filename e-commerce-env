@@ -1,13 +1,8 @@
-# DATABASE (Railway provides most of these automatically)
-# You probably already have MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE from Railway.
-# If not, fill them here.
-
-MYSQLHOST=mysql.railway.internal
-MYSQLPORT=3306
+MYSQLHOST=maglev.proxy.rlwy.net
+MYSQLPORT=10231
 MYSQLUSER=root
 MYSQLPASSWORD=DerFIkAZQAuBwEYXghxdJLJQCLJlYnjJ
 MYSQLDATABASE=railway
 
-# EMAIL (Gmail App Password)
 EMAIL_USERNAME=pratiktekanar5044@gmail.com
 EMAIL_PASSWORD=eexmeuqkarpggokj
