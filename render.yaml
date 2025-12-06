@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ecommerce-backend
+    env: docker
+    plan: free
+    autoDeploy: true
+    branch: main
+    buildCommand: ""
+    startCommand: ""
